@@ -1,0 +1,58 @@
+# Import necessary libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, accuracy_score
+import matplotlib.pyplot as plt
+# Step 1: Generate a synthetic dataset (4 features, 2 classes)
+from sklearn.datasets import make_classification
+X_sample, y_sample = make_classification(
+ n_samples=220,
+ n_features=4,
+ n_informative=3,
+ n_redundant=0,
+ n_repeated=0,
+ n_classes=2,
+ random_state=42
+)
+# Step 2: Convert to DataFrame
+df = pd.DataFrame(X_sample, columns=["Feature1", "Feature2", "Feature3",
+"Feature4"])
+df["target"] = y_sample
+# Step 3: Preprocessing (optional: drop NA if real dataset is used)
+df.dropna(inplace=True)
+le = LabelEncoder()
+df["target"] = le.fit_transform(df["target"])
+# Step 4: Split dataset into features and labels
+X = df.drop("target", axis=1)
+y = df["target"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
+random_state=42)
+# -------------------------
+# Decision Tree Classifier
+# -------------------------
+dt_classifier = DecisionTreeClassifier(random_state=42)
+dt_classifier.fit(X_train, y_train)
+# Evaluate
+dt_predictions = dt_classifier.predict(X_test)
+dt_accuracy = accuracy_score(y_test, dt_predictions)
+print("Decision Tree Accuracy:", round(dt_accuracy, 2))
+print(classification_report(y_test, dt_predictions))
+# Plot Decision Tree
+plt.figure(figsize=(12, 8))
+plot_tree(dt_classifier, filled=True, feature_names=X.columns,
+class_names=["Class 0", "Class 1"])
+plt.title("Decision Tree")
+plt.show()
+# -------------------------
+# Random Forest Classifier
+# -------------------------
+rf_classifier = RandomForestClassifier(random_state=42)
+rf_classifier.fit(X_train, y_train)
+# Evaluate
+rf_predictions = rf_classifier.predict(X_test)
+rf_accuracy = accuracy_score(y_test, rf_predictions)
+print("Random Forest Accuracy:", round(rf_accuracy, 2))
+print(classification_report(y_test, rf_predictions))

@@ -1,0 +1,53 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.metrics import classification_report, confusion_matrix
+import matplotlib.pyplot as plt
+# Step 1: Generate synthetic dataset (replace this with pd.read_csv if you have
+a real file)
+from sklearn.datasets import make_classification
+X, y = make_classification(
+ n_samples=250,
+ n_features=2, # Set to 2 for plotting decision boundary
+ n_informative=2,
+ n_redundant=0,
+ n_classes=2,
+ random_state=42
+)
+# Step 2: Scale the features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+# Step 3: Split into training and testing
+X_train, X_test, y_train, y_test = train_test_split(
+ X_scaled, y, test_size=0.2, random_state=42
+)
+# Step 4: Train SVM (linear kernel)
+svm_model = SVC(kernel='linear')
+svm_model.fit(X_train, y_train)
+# Step 5: Predict & Evaluate
+y_pred = svm_model.predict(X_test)
+print("Classification Report:")
+print(classification_report(y_test, y_pred))
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+# Step 6: Plot if 2D
+if X_train.shape[1] == 2:
+ plt.figure(figsize=(8, 6))
+ plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap='viridis',
+edgecolors='k')
+ plt.xlabel('Feature 1')
+ plt.ylabel('Feature 2')
+ # Plot decision boundary
+ ax = plt.gca()
+ xlim = ax.get_xlim()
+ ylim = ax.get_ylim()
+ xx, yy = np.meshgrid(np.linspace(xlim[0], xlim[1], 50),
+ np.linspace(ylim[0], ylim[1], 50))
+ Z = svm_model.decision_function(np.c_[xx.ravel(), yy.ravel()])
+ Z = Z.reshape(xx.shape)
+ ax.contour(xx, yy, Z, colors='k', levels=[-1, 0, 1],
+ alpha=0.5, linestyles=['--', '-', '--'])
+ plt.title("SVM Decision Boundary")
+ plt.show()
