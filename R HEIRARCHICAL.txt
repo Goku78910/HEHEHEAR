@@ -1,0 +1,29 @@
+# Load required libraries
+library(dplyr)
+library(tidyr)
+library(factoextra)
+library(cluster)
+library(dbscan)
+
+# Load the dataset
+data <- read.csv(file.choose(), header = TRUE)
+
+# Handle missing values
+data <- na.omit(data)
+
+# Select numeric columns only
+numeric_data <- data %>% select(where(is.numeric))
+
+# Scale the data
+scaled_data <- scale(numeric_data)
+
+# Hierarchical clustering
+hc <- hclust(dist(scaled_data), method = "ward.D")
+plot(hc, cex = 0.6, hang = -1)
+
+# DBSCAN clustering
+db <- dbscan(scaled_data, eps = 0.5, minPts = 5)
+
+# Plot DBSCAN clusters
+fviz_cluster(list(data = scaled_data, cluster = db$cluster),
+             geom = "point", stand = FALSE)
